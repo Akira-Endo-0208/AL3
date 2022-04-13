@@ -18,7 +18,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ゲームウィンドウの作成
 	win = WinApp::GetInstance();
-	win->CreateGameWindow("LE2B_08_エンドウ_アキラ_AL3");
+	win->CreateGameWindow("LE2B_08_エンドウ_アキラ_CG2");
 
 	// DirectX初期化処理
 	dxCommon = DirectXCommon::GetInstance();
