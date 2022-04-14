@@ -29,6 +29,7 @@ void GameScene::Initialize()
 	viewProjection_.Initialize();
 }
 
+
 void GameScene::Update() 
 { 
 	debugText_->SetPos(40, 50);
@@ -43,6 +44,11 @@ void GameScene::Update()
 	debugText_->Printf(
 	  "translation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
 	  worldTransform_.scale_.z);
+
+void GameScene::Update() { 
+
+	player_->Update();
+
 }
 
 void GameScene::Draw() {
