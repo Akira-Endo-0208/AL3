@@ -8,7 +8,9 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() 
 {
+
 	delete sprite_;
+
 	delete model_;
 }
 
@@ -21,6 +23,7 @@ void GameScene::Initialize()
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
+
 	soundDataHandle_ = audio_->LoadWave("mokugyo.wav");
 	sprite_ = Sprite::Create(textureHandle_, {100, 50});
 	model_ = Model::Create();
@@ -29,10 +32,17 @@ void GameScene::Initialize()
 
 	audio_->PlayWave(soundDataHandle_);
 	voiceHandle_ = audio_->PlayWave(soundDataHandle_, true);
+
+	model_ = Model::Create();
+
+	worldTransform_.Initialize();
+	viewProjection_.Initialize();
+
 }
 
 void GameScene::Update() 
 { 
+
 	XMFLOAT2 position = sprite_->GetPosition();
 	position.x += 2.0f;
 	position.y += 1.0f;
@@ -48,6 +58,8 @@ void GameScene::Update()
 	std::string strDebug = std::string("Value:") + std::to_string(value_);
 
 	debugText_->Print(strDebug, 50, 50, 1.0f);
+
+
 }
 
 void GameScene::Draw() {

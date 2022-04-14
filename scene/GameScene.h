@@ -52,6 +52,7 @@ class GameScene {
 	uint32_t voiceHandle_ = 0;
 	int32_t value_ = 0;
 	Sprite* sprite_ = nullptr;
+
 	Model* model_ = nullptr;
 	WorldTransform worldTransform_;
 	ViewProjection viewProjection_;
