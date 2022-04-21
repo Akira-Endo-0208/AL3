@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include "Audio.h"
-#include "DirectXCommon.h"
 #include "DebugText.h"
+#include "DirectXCommon.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
@@ -41,6 +41,19 @@ class GameScene {
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	//パーツID
+	enum PartId {
+		Root,
+		Spine,
+		Chest,
+		Head,
+		ArmL,
+		ArmR,
+		Hip,
+		LegL,
+		LegR,
+	};
 
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
