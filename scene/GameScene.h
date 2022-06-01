@@ -10,6 +10,8 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 #include <DirectXMath.h>
+#include "Player.h"
+#include "DebugCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -43,17 +45,7 @@ class GameScene {
 	void Draw();
 
 	//パーツID
-	enum PartId {
-		Root,
-		Spine,
-		Chest,
-		Head,
-		ArmL,
-		ArmR,
-		Hip,
-		LegL,
-		LegR,
-	};
+
 
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -62,10 +54,9 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	Model* model_ = nullptr;
-	WorldTransform worldTransform_[100];
 	ViewProjection viewProjection_;
+	Player* player_ = nullptr;
 
-	float viewAngle = 0.0f;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
