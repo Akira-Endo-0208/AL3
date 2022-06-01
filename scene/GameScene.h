@@ -3,8 +3,8 @@
 #include "Audio.h"
 #include "DirectXCommon.h"
 #include "DebugText.h"
-#include "Input.h"
 #include "Model.h"
+#include "Input.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
@@ -50,7 +50,8 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	Player* player_ = nullptr;
 	Model* model_ = nullptr;
-	TextureHandle textureHandle_ = nulltr
+	uint32_t textureHandle_ = 0;
+	ViewProjection viewProjection_;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
