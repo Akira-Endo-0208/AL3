@@ -1,15 +1,16 @@
 ﻿#pragma once
 
 #include "Audio.h"
-#include "DebugText.h"
 #include "DirectXCommon.h"
+#include "DebugText.h"
 #include "Input.h"
 #include "Model.h"
 #include "SafeDelete.h"
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
-#include <DirectXMath.h>
+#include "Player.h"
+#include <cassert>
 
 /// <summary>
 /// ゲームシーン
@@ -42,30 +43,14 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-	//パーツID
-	enum PartId {
-		Root,
-		Spine,
-		Chest,
-		Head,
-		ArmL,
-		ArmR,
-		Hip,
-		LegL,
-		LegR,
-	};
-
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
 	Audio* audio_ = nullptr;
 	DebugText* debugText_ = nullptr;
-	uint32_t textureHandle_ = 0;
+	Player* player_ = nullptr;
 	Model* model_ = nullptr;
-	WorldTransform worldTransform_[100];
-	ViewProjection viewProjection_;
-
-	float viewAngle = 0.0f;
+	TextureHandle textureHandle_ = nulltr
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
