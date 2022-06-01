@@ -1,27 +1,30 @@
 #pragma once
 
+#include "Model.h"
+#include "WorldTransform.h"
 #include "GameScene.h"
 #include "Model.h"
 
 
 class Player {
 
-  public:
+	public:
 	void Initialize(Model* model, uint32_t textureHandle);
 
-	void Update();
+		void Update();
 
 	void Draw(ViewProjection viewProjection_);
 
-  private:
+		private:
 	WorldTransform worldTransform_;
 
+			WorldTransform worldTransform_;
 
-	Model* model_ = nullptr;
+			Model* model_ = nullptr;
 
-	uint32_t textureHandle_ = 0u;
+			uint32_t textureHandle_ = 0u;
 
-	Input* input_ = nullptr;
+			Input* input_ = nullptr;
 
-	DebugText* debugText_ = nullptr;
+			DebugText* debugText_ = nullptr;
 };
