@@ -19,7 +19,7 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	player_->Initialize(model_,textureHandle_);
 
-		viewProjection_.Initialize();
+	viewProjection_.Initialize();
 
 
 
