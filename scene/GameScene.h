@@ -9,7 +9,12 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "DebugCamera.h"
+#include "TransferWorldMatrix.h"
 #include <DirectXMath.h>
+
+using namespace WorldMat;
+using namespace DirectX;
 
 /// <summary>
 /// ゲームシーン
@@ -42,6 +47,9 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
+	
+
+
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -49,8 +57,11 @@ class GameScene {
 	DebugText* debugText_ = nullptr;
 	uint32_t textureHandle_ = 0;
 	Model* model_ = nullptr;
-	WorldTransform worldTransform_;
+	DebugCamera* debugCamera_ = nullptr;
+	WorldTransform worldTransforms_[100];
 	ViewProjection viewProjection_;
+
+	float viewAngle = 0.0f;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
