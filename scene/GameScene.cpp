@@ -1,19 +1,18 @@
 ﻿#include "GameScene.h"
+#include "AxisIndicator.h"
 #include "TextureManager.h"
+#include "PrimitiveDrawer.h"
 #include <cassert>
-
-using namespace DirectX;
+#include <random>
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() 
-{
+GameScene::~GameScene() {
 	delete model_;
+	delete debugCamera_;
 }
 
-
-void GameScene::Initialize() 
-{
+void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -21,34 +20,164 @@ void GameScene::Initialize()
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
+	debugCamera_ = new DebugCamera(1280, 720);
 
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	worldTransform_.rotation_ = {XM_PI / 4.0f, XM_PI / 4.0f, 0.0f};
-	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
-	worldTransform_.Initialize();
+	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+
+	//乱数シード生成器
+	std::random_device seed_gen;
+	//メルセンヌ・ツイスター
+	std::mt19937_64 engine(seed_gen());
+	//乱数範囲の指定
+	std::uniform_real_distribution<float> dist(0, 100);
+	//乱数範囲(回転角用)
+	std::uniform_real_distribution<float> rotDist(0.0f, XM_2PI);
+	//乱数範囲(座標用)
+	std::uniform_real_distribution<float> posDist(-10.0f, 10.0f);
+
+	for (WorldTransform& worldTransform : worldTransforms_) {
+
+		worldTransform.Initialize();
+
+		worldTransform.scale_ = {1.0f, 1.0f, 1.0f};
+		worldTransform.rotation_ = {rotDist(engine), rotDist(engine), rotDist(engine)};
+		worldTransform.translation_ = {posDist(engine), posDist(engine), posDist(engine)};
+
+		WorldMat::TransferWorldMatrix(
+		  worldTransform.scale_, worldTransform.rotation_, worldTransform.translation_,
+		  worldTransform);
+	}
+
+	viewProjection_.fovAngleY = XMConvertToRadians(10.0f);
+
+	//アスペクト比を設定
+	//viewProjection_.aspectRatio = 1.0f;
+
+	//ニアクリップ距離を設定
+	viewProjection_.nearZ = 52.0f;
+	//ファークリップ距離を設定
+	viewProjection_.farZ = 53.0f;
+
+
 	viewProjection_.Initialize();
 }
 
+void GameScene::Update() {
+	debugCamera_->Update();
 
-void GameScene::Update() 
-{ 
-	debugText_->SetPos(40, 50);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
-	debugText_->SetPos(40, 70);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
-	  worldTransform_.rotation_.z);
-	debugText_->SetPos(40, 90);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
-	  worldTransform_.scale_.z);
+	{
+		////視点の移動ベクトル
+		//Vector3 move = {0, 0, 0};
 
-void GameScene::Update() { 
+		////視点の移動速さ
+		//const float kEyeSpeed = 0.2f;
 
-	player_->Update();
+		////押した方向で移動ベクトルを変更
+		//if (input_->PushKey(DIK_W)) {
+		//	move = {0, 0, kEyeSpeed};
+		//} else if (input_->PushKey(DIK_S)) {
+		//	move = {0, 0, -kEyeSpeed};
+		//}
 
+		////視点移動（ベクトルの加算）
+		//viewProjection_.eye += move;
+
+		////行列の再計算
+		//viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 50);
+		debugText_->Printf(
+		  "eye:(%f,%f,%f)", viewProjection_.eye.x, viewProjection_.eye.y, viewProjection_.eye.z);
+	}
+
+	{
+		////視点の移動ベクトル
+		//Vector3 move = {0, 0, 0};
+
+		////注視点の移動速さ
+		//const float kTargetSpeed = 0.2f;
+
+		////押した方向で移動ベクトルを変更
+		//if (input_->PushKey(DIK_LEFT)) {
+		//	move = {-kTargetSpeed, 0, 0};
+		//} else if (input_->PushKey(DIK_RIGHT)) {
+		//	move = {kTargetSpeed, 0, 0};
+		//}
+
+		////注視点移動（ベクトルの加算）
+		//viewProjection_.target += move;
+
+		////行列の再計算
+		//viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 70);
+		debugText_->Printf(
+		  "target:(%f,%f,%f)", viewProjection_.target.x, viewProjection_.target.y,
+		  viewProjection_.target.z);
+	}
+
+	{
+
+		//const float kUpRotSpeed = 0.05f;
+
+		////押した方向で移動ベクトルを変更
+		//if (input_->PushKey(DIK_SPACE)) {
+		//	viewAngle += kUpRotSpeed;
+
+		//	viewAngle = fmodf(viewAngle, XM_PI * 2.0f);
+		//}
+
+		////注視点移動（ベクトルの加算）
+		//viewProjection_.up = {cosf(viewAngle), sinf(viewAngle), 0.0f};
+
+		////行列の再計算
+		//viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 90);
+		debugText_->Printf(
+		  "up:(%f,%f,%f)", viewProjection_.up.x, viewProjection_.up.y, viewProjection_.up.z);
+	}
+
+	{
+		if (input_->PushKey(DIK_UP)) {
+			// UPキーで視野角が広がる
+			viewProjection_.fovAngleY += 0.01f;
+			viewProjection_.fovAngleY = min(viewProjection_.fovAngleY, XM_PI);
+			// DOWNキーで視野角が狭まる
+		} else if (input_->PushKey(DIK_DOWN)) {
+			viewProjection_.fovAngleY -= 0.01f;
+			viewProjection_.fovAngleY = max(viewProjection_.fovAngleY, 0.01f);
+		}
+
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 110);
+		debugText_->Printf("fovAngleY(Degree):%f", XMConvertToDegrees(viewProjection_.fovAngleY));
+
+	}
+
+	{
+		//クリップ距離変更処理
+		//WSキーでニアクリップ距離を増減
+		if (input_->PushKey(DIK_W)) {
+			viewProjection_.nearZ += 0.1f;
+		} else if (input_->PushKey(DIK_S)) {
+			viewProjection_.nearZ -= 0.1f;
+		}
+
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+
+		//デバッグ用表示
+		debugText_->SetPos(50, 130);
+		debugText_->Printf("nearZ:%f", viewProjection_.nearZ);
+	}
 }
 
 void GameScene::Draw() {
@@ -77,7 +206,10 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	for (WorldTransform& worldTransform : worldTransforms_) {
+
+		model_->Draw(worldTransform, viewProjection_, textureHandle_);
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 
@@ -99,4 +231,3 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
-
