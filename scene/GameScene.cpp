@@ -1,19 +1,20 @@
 ﻿#include "GameScene.h"
+#include "AxisIndicator.h"
 #include "TextureManager.h"
 #include <cassert>
 
-using namespace DirectX;
 
-GameScene::GameScene() {}
 
-GameScene::~GameScene() 
-{
-	delete model_;
+GameScene::GameScene(){
+
 }
 
+GameScene::~GameScene() {
+	delete model_;
+	delete debugCamera_;
+}
 
-void GameScene::Initialize() 
-{
+void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -21,34 +22,32 @@ void GameScene::Initialize()
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
+	debugCamera_ = new DebugCamera(1280, 720);
 
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	worldTransform_.rotation_ = {XM_PI / 4.0f, XM_PI / 4.0f, 0.0f};
-	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
+	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&debugCamera_->GetViewProjection());
+
+	
 	worldTransform_.Initialize();
 	viewProjection_.Initialize();
+
+
+	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
+	worldTransform_.rotation_ = {4.0f, 4.0f, 4.0f};
+	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
+
+	WorldMat::TransferWorldMatrix(
+
+	worldTransform_.scale_,
+	worldTransform_.rotation_,
+	worldTransform_.translation_,
+	worldTransform_
+	);
+
 }
 
-
-void GameScene::Update() 
-{ 
-	debugText_->SetPos(40, 50);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
-	debugText_->SetPos(40, 70);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
-	  worldTransform_.rotation_.z);
-	debugText_->SetPos(40, 90);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
-	  worldTransform_.scale_.z);
-
-void GameScene::Update() { 
-
-	player_->Update();
-
+void GameScene::Update() {
+	debugCamera_->Update(); 
 }
 
 void GameScene::Draw() {
@@ -77,7 +76,7 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	model_->Draw(worldTransform_, debugCamera_->GetViewProjection(), textureHandle_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 
@@ -99,4 +98,3 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
-
