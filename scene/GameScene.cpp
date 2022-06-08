@@ -1,19 +1,17 @@
 ﻿#include "GameScene.h"
+#include "AxisIndicator.h"
 #include "TextureManager.h"
 #include <cassert>
-
-using namespace DirectX;
+#include <random>
 
 GameScene::GameScene() {}
 
-GameScene::~GameScene() 
-{
+GameScene::~GameScene() {
 	delete model_;
+	delete debugCamera_;
 }
 
-
-void GameScene::Initialize() 
-{
+void GameScene::Initialize() {
 
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
@@ -21,33 +19,50 @@ void GameScene::Initialize()
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
 	model_ = Model::Create();
+	debugCamera_ = new DebugCamera(1280, 720);
 
-	worldTransform_.scale_ = {5.0f, 5.0f, 5.0f};
-	worldTransform_.rotation_ = {XM_PI / 4.0f, XM_PI / 4.0f, 0.0f};
-	worldTransform_.translation_ = {10.0f, 10.0f, 10.0f};
-	worldTransform_.Initialize();
+	AxisIndicator::GetInstance()->SetVisible(true);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+
+
+		worldTransforms_[0].Initialize();
+
+		worldTransforms_[1].Initialize();
+	    worldTransforms_[1].translation_ = {0, 4.5f, 0};
+	    worldTransforms_[1].parent_ = &worldTransforms_[0];
+
+
 	viewProjection_.Initialize();
 }
 
+void GameScene::Update() {
 
-void GameScene::Update() 
-{ 
-	debugText_->SetPos(40, 50);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	  worldTransform_.translation_.z);
-	debugText_->SetPos(40, 70);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.rotation_.x, worldTransform_.rotation_.y,
-	  worldTransform_.rotation_.z);
-	debugText_->SetPos(40, 90);
-	debugText_->Printf(
-	  "translation:(%f,%f,%f)", worldTransform_.scale_.x, worldTransform_.scale_.y,
-	  worldTransform_.scale_.z);
+	debugCamera_->Update();
 
-void GameScene::Update() { 
+		//キャラクターの移動ベクトル
+	Vector3 move = {0, 0, 0};
 
-	player_->Update();
+	//キャラクターの移動速さ
+	const float kCharacterSpeed = 0.2f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_LEFT)) {
+		move = {-kCharacterSpeed, 0, 0};
+	} else if (input_->PushKey(DIK_RIGHT)) {
+		move = {kCharacterSpeed, 0, 0};
+	}
+
+	//注視点移動(ベクトルの加算)
+	worldTransforms_[0].translation_ += move;
+	WorldMat::TransferWorldMatrix(
+	  worldTransforms_->scale_, worldTransforms_->rotation_, worldTransforms_->translation_,
+	  worldTransforms_[0]);
+	worldTransforms_[0].TransferMatrix();
+
+	debugText_->SetPos(50, 150);
+	debugText_->Printf(
+	  "PosX(%f,%f,%f)", worldTransforms_[0].translation_.x, worldTransforms_[0].translation_.y,
+	  worldTransforms_[0].translation_.z);
 
 }
 
@@ -77,7 +92,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransform_, viewProjection_, textureHandle_);
+	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
+	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 
@@ -99,4 +115,3 @@ void GameScene::Draw() {
 
 #pragma endregion
 }
-
