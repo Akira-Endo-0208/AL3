@@ -260,6 +260,7 @@ void TransferWorldMatrix(
 	};
 	worldTransform.matWorld_ *= matScale * matRot * matTrans;
 
+
 }
 
 } // namespace WorldMat
