@@ -12,6 +12,7 @@
 #include "DebugCamera.h"
 #include "TransferWorldMatrix.h"
 #include <DirectXMath.h>
+#include "Player.h"
 
 using namespace WorldMat;
 using namespace DirectX;
@@ -70,8 +71,10 @@ class GameScene {
 	uint32_t textureHandle_ = 0;
 	Model* model_ = nullptr;
 	DebugCamera* debugCamera_ = nullptr;
-	WorldTransform worldTransforms_[100];
+
 	ViewProjection viewProjection_;
+	Player* player_ = nullptr;
+	bool isDebugCameraActive_ = false;
 
 	/// <summary>
 	/// ゲームシーン用
