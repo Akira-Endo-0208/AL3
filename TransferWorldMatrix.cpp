@@ -158,7 +158,7 @@ void TransferMatrix(Vector3 trans, WorldTransform worldTransform) {
 }
 
 void TransferWorldMatrix(
-  Vector3 scale, Vector3 rotate, Vector3 trans, WorldTransform worldTransform) {
+  Vector3 scale, Vector3 rotate, Vector3 trans, WorldTransform& worldTransform) {
 
 	Matrix4 matScale = {scale.x, 0,       0,       0,
 
@@ -259,6 +259,7 @@ void TransferWorldMatrix(
 		0, 0, 0, 1
 	};
 	worldTransform.matWorld_ *= matScale * matRot * matTrans;
+
 
 }
 

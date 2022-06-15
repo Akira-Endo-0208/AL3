@@ -32,6 +32,13 @@ void GameScene::Initialize() {
 	    worldTransforms_[1].parent_ = &worldTransforms_[0];
 
 
+		worldTransforms_[0].scale_ = {1.0f, 1.0f, 1.0f};
+	    worldTransforms_[0].rotation_ = {1.0f, 1.0f, 1.0f};
+	    worldTransforms_[0].translation_ = {0.0f, 0.0f, 0.0f};
+
+		worldTransforms_[1].scale_ = {1.0f, 1.0f, 1.0f};
+	    worldTransforms_[1].rotation_ = {1.0f, 1.0f, 1.0f};
+
 	viewProjection_.Initialize();
 }
 
@@ -54,15 +61,31 @@ void GameScene::Update() {
 
 	//注視点移動(ベクトルの加算)
 	worldTransforms_[0].translation_ += move;
+
 	WorldMat::TransferWorldMatrix(
-	  worldTransforms_->scale_, worldTransforms_->rotation_, worldTransforms_->translation_,
-	  worldTransforms_[0]);
+	worldTransforms_[0].scale_,
+	worldTransforms_[0].rotation_,
+	worldTransforms_[0].translation_,
+	worldTransforms_[0]
+	);
+
 	worldTransforms_[0].TransferMatrix();
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
 	  "PosX(%f,%f,%f)", worldTransforms_[0].translation_.x, worldTransforms_[0].translation_.y,
 	  worldTransforms_[0].translation_.z);
+
+		WorldMat::TransferWorldMatrix(
+	worldTransforms_[1].scale_,
+	worldTransforms_[1].rotation_,
+	worldTransforms_[1].translation_,
+	worldTransforms_[1]
+		);
+
+		worldTransforms_[1].matWorld_ *= worldTransforms_[0].matWorld_;
+
+		worldTransforms_[1].TransferMatrix();
 
 }
 
