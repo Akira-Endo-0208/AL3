@@ -4,6 +4,7 @@
 #include <cassert>
 #include <random>
 
+
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
@@ -25,20 +26,59 @@ void GameScene::Initialize() {
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
 
-		worldTransforms_[0].Initialize();
-
-		worldTransforms_[1].Initialize();
-	    worldTransforms_[1].translation_ = {0, 4.5f, 0};
-	    worldTransforms_[1].parent_ = &worldTransforms_[0];
+		//キャラの大元
+		worldTransforms_[PartId::kRoot].Initialize();
+		worldTransforms_[PartId::kRoot].translation_ = {0.0f, 0.0f, 0.0f};
 
 
-		worldTransforms_[0].scale_ = {1.0f, 1.0f, 1.0f};
-	    worldTransforms_[0].rotation_ = {1.0f, 1.0f, 1.0f};
-	    worldTransforms_[0].translation_ = {0.0f, 0.0f, 0.0f};
+		 //脊椎
+	    worldTransforms_[PartId::kSpine].Initialize();
+	    worldTransforms_[PartId::kSpine].parent_ = &worldTransforms_[PartId::kRoot];
+	    worldTransforms_[PartId::kSpine].translation_ = {0, 4.5f, 0};
 
-		worldTransforms_[1].scale_ = {1.0f, 1.0f, 1.0f};
-	    worldTransforms_[1].rotation_ = {1.0f, 1.0f, 1.0f};
 
+	    //上半身 胸
+	    worldTransforms_[PartId::kChest].Initialize();
+	    worldTransforms_[PartId::kChest].parent_ = &worldTransforms_[PartId::kSpine];
+	    worldTransforms_[PartId::kChest].translation_ = {0, 4.5f, 0};
+
+	    //上半身　頭
+	    worldTransforms_[PartId::kHead].Initialize();
+	    worldTransforms_[PartId::kHead].parent_ = &worldTransforms_[PartId::kChest];
+	    worldTransforms_[PartId::kHead].translation_ = {0, 3.5f, 0};
+
+	    //上半身　左腕
+	    worldTransforms_[PartId::kArmL].Initialize();
+	    worldTransforms_[PartId::kArmL].parent_ = &worldTransforms_[PartId::kChest];
+	    worldTransforms_[PartId::kArmL].translation_ = {-3.0f, 0.0f, 0};
+
+	    //上半身　右腕
+	    worldTransforms_[PartId::kArmR].Initialize();
+	    worldTransforms_[PartId::kArmR].parent_ = &worldTransforms_[PartId::kChest];
+	    worldTransforms_[PartId::kArmR].translation_ = {3.0f, 0.0f, 0};
+
+
+	    //下半身　尻
+	    worldTransforms_[PartId::kHip].Initialize();
+	    worldTransforms_[PartId::kHip].parent_ = &worldTransforms_[PartId::kSpine];
+	    worldTransforms_[PartId::kHip].translation_ = {0, 1.0f, 0};
+
+
+	    //下半身　左脚
+	    worldTransforms_[PartId::kLegL].Initialize();
+	    worldTransforms_[PartId::kLegL].parent_ = &worldTransforms_[PartId::kHip];
+	    worldTransforms_[PartId::kLegL].translation_ = {-3.0f, -2.5f, 0};
+
+
+	    //下半身　右脚
+	    worldTransforms_[PartId::kLegR].Initialize();
+	    worldTransforms_[PartId::kLegR].parent_ = &worldTransforms_[PartId::kHip];
+	    worldTransforms_[PartId::kLegR].translation_ = {3.0f, -2.5f, 0};
+
+		for (int i = 0; i < kNumPartId; i++) {
+		 worldTransforms_[i].rotation_ = {1.0f, 1.0f, 1.0f};
+		 worldTransforms_[i].scale_ = {1.0f, 1.0f, 1.0f};
+	    }
 	viewProjection_.Initialize();
 }
 
@@ -60,33 +100,52 @@ void GameScene::Update() {
 	}
 
 	//注視点移動(ベクトルの加算)
-	worldTransforms_[0].translation_ += move;
+	worldTransforms_[PartId::kRoot].translation_ += move;
 
-	WorldMat::TransferWorldMatrix(
-	worldTransforms_[0].scale_,
-	worldTransforms_[0].rotation_,
-	worldTransforms_[0].translation_,
-	worldTransforms_[0]
-	);
+	for (int i = 0; i < kNumPartId; i++) {
 
-	worldTransforms_[0].TransferMatrix();
+		WorldMat::TransferWorldMatrix(
+
+		worldTransforms_[i].scale_,
+		worldTransforms_[i].rotation_,
+		worldTransforms_[i].translation_,
+		worldTransforms_[i]
+		);
+
+		if (i >= kSpine) 
+		{
+			worldTransforms_[i].matWorld_ *= worldTransforms_[i].parent_->matWorld_;
+		}
+		worldTransforms_[i].TransferMatrix();
+	}
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
-	  "PosX(%f,%f,%f)", worldTransforms_[0].translation_.x, worldTransforms_[0].translation_.y,
-	  worldTransforms_[0].translation_.z);
+	  "kRoot(%f,%f,%f)", worldTransforms_[PartId::kRoot].translation_.x,
+	  worldTransforms_[PartId::kRoot].translation_.y,
+	  worldTransforms_[PartId::kRoot].translation_.z);
 
-		WorldMat::TransferWorldMatrix(
-	worldTransforms_[1].scale_,
-	worldTransforms_[1].rotation_,
-	worldTransforms_[1].translation_,
-	worldTransforms_[1]
-		);
 
-		worldTransforms_[1].matWorld_ *= worldTransforms_[0].matWorld_;
+	//上半身回転処理
+	//上半身の回転の速さ[ラジアン/flame]
+	const float kChestRotSpeed = 0.02f;
 
-		worldTransforms_[1].TransferMatrix();
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_U)) {
+		worldTransforms_[PartId::kChest].rotation_.y -= kChestRotSpeed;
+	} else if (input_->PushKey(DIK_I)) {
+		worldTransforms_[PartId::kChest].rotation_.y += kChestRotSpeed;
+	}
 
+	//下半身の回転の速さ[ラジアン/flame]
+	const float kHipRotSpeed = 0.02f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_J)) {
+		worldTransforms_[PartId::kHip].rotation_.y -= kHipRotSpeed;
+	} else if (input_->PushKey(DIK_K)) {
+		worldTransforms_[PartId::kHip].rotation_.y += kHipRotSpeed;
+	}
 }
 
 void GameScene::Draw() {
@@ -115,8 +174,13 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
-	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
-	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
+	for (int i = 0; i < kNumPartId; i++)
+	{
+		if (i <= kSpine) {
+			continue;
+		}
+		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
+	}
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 

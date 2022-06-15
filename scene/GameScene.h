@@ -47,7 +47,19 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-	
+		enum PartId {
+		kRoot,
+		kSpine,
+		kChest,
+		kHead,
+		kArmL,
+		kArmR,
+		kHip,
+		kLegL,
+		kLegR,
+
+		kNumPartId
+	};
 
 
   private: // メンバ変数
@@ -61,7 +73,6 @@ class GameScene {
 	WorldTransform worldTransforms_[100];
 	ViewProjection viewProjection_;
 
-	float viewAngle = 0.0f;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

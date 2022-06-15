@@ -96,3 +96,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	return 0;
 }
+
+void GlobalWorldTransUpdate(WorldTransform worldtransform) {
+
+	WorldMat::TransferWorldMatrix(
+	  worldtransform.scale_, worldtransform.rotation_, worldtransform.translation_, worldtransform);
+	worldtransform.matWorld_ *= worldtransform.parent_->matWorld_;
+
+}
