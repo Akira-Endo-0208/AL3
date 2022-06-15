@@ -79,6 +79,7 @@ void GameScene::Initialize() {
 		 worldTransforms_[i].rotation_ = {1.0f, 1.0f, 1.0f};
 		 worldTransforms_[i].scale_ = {1.0f, 1.0f, 1.0f};
 	    }
+
 	viewProjection_.Initialize();
 }
 
@@ -117,6 +118,7 @@ void GameScene::Update() {
 			worldTransforms_[i].matWorld_ *= worldTransforms_[i].parent_->matWorld_;
 		}
 		worldTransforms_[i].TransferMatrix();
+
 	}
 
 	debugText_->SetPos(50, 150);
