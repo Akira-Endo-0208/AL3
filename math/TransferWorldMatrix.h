@@ -6,8 +6,6 @@
 
 namespace WorldMat {
 
-	
-
 	void ScaleMatrix(Vector3 scale,WorldTransform worldTransform);
 
 	void RotationX(Vector3 rotate, WorldTransform worldTransform);
