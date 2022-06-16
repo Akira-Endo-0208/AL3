@@ -42,7 +42,9 @@ void GameScene::Update() {
 	debugCamera_->Update();
 
 	//自キャラの更新
+	player_->Move();
 	player_->Update();
+
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_K)) {

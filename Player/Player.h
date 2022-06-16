@@ -20,15 +20,20 @@ class Player {
 	//描画
 	void Draw(ViewProjection viewProjection);
 
+	void Move();
 
 	private:
-		//ワールド変換データ
-		WorldTransform worldTransform_;
-		//モデル
-	    Model* model_ = nullptr;
-		//テクスチャハンドル
-	    uint32_t textureHandle_ = 0u;
 
-		Input* input_ = nullptr;
-	    DebugText* debugText_ = nullptr;
+	//キャラクターの移動ベクトル
+	Vector3 move;
+
+	//ワールド変換データ
+	WorldTransform worldTransform_;
+	//モデル
+	Model* model_ = nullptr;
+		//テクスチャハンドル
+	uint32_t textureHandle_ = 0u;
+
+	Input* input_ = nullptr;
+	DebugText* debugText_ = nullptr;
 };
