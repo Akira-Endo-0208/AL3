@@ -71,7 +71,6 @@ void Player::Move() {
 
 }
 
-
 void Player::Draw(ViewProjection viewProjection) {
 	
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
