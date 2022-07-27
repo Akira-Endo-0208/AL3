@@ -31,6 +31,8 @@ void Player::Update() {
 	  worldTransform_);
 	worldTransform_.TransferMatrix();
 
+
+
 	//移動限界座標
 	const float kmoveLimitX = 35;
 	const float kmoveLimitY = 20;
@@ -40,7 +42,14 @@ void Player::Update() {
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kmoveLimitX);
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kmoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kmoveLimitY);
-	
+
+	Rotate();
+	Move();
+	Attack();
+
+	if (bullet_) {
+		bullet_->Update();
+	}
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
@@ -70,7 +79,37 @@ void Player::Move() {
 
 }
 
+void Player::Rotate() {
+
+	
+	const float kRotSpeed = 0.005f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_U)) {
+		worldTransform_.rotation_.y -= kRotSpeed;
+	} else if (input_->PushKey(DIK_I)) {
+		worldTransform_.rotation_.y += kRotSpeed;
+	}
+
+
+
+}
+
 void Player::Draw(ViewProjection viewProjection) {
 	
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	if (bullet_) {
+		bullet_->Draw(viewProjection);
+	}
+}
+
+void Player::Attack() { 
+	if (input_->PushKey(DIK_SPACE)) {
+
+		PlayerBullet* newBullet = new PlayerBullet();
+		newBullet->Initialize(model_, worldTransform_.translation_);
+
+		bullet_ = newBullet;
+	}
 }
