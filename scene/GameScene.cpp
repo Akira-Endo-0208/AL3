@@ -42,8 +42,8 @@ void GameScene::Update() {
 	debugCamera_->Update();
 
 	//自キャラの更新
-	player_->Move();
 	player_->Update();
+
 
 
 	#ifdef _DEBUG
@@ -62,6 +62,8 @@ void GameScene::Update() {
 		viewProjection_.UpdateMatrix();
 		viewProjection_.TransferMatrix();
 	}
+
+
 }
 
 void GameScene::Draw() {

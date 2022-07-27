@@ -4,6 +4,7 @@
 #include "DebugText.h"
 #include "TransferWorldMatrix.h"
 #include <cassert>
+#include "PlayerBullet.h"
 
 using namespace WorldMat;
 #pragma once
@@ -22,6 +23,10 @@ class Player {
 
 	void Move();
 
+	void Rotate();
+
+	void Attack();
+
 	private:
 
 	//キャラクターの移動ベクトル
@@ -36,4 +41,6 @@ class Player {
 
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
+
+	PlayerBullet* bullet_ = nullptr;
 };
