@@ -1,3 +1,4 @@
+#pragma once
 #include "Model.h"
 #include "WorldTransform.h"
 #include "Input.h"
@@ -8,14 +9,11 @@
 #include <memory>
 #include <list>
 
+class Enemy {
 
-#pragma once
-class Player {
-
-	public:
-
+  public:
 	//初期化
-	void Initialize(Model* model,uint32_t textureHandle);
+	void Initialize(Model* model, uint32_t textureHandle);
 
 	//更新
 	void Update();
@@ -25,24 +23,14 @@ class Player {
 
 	void Move();
 
-	void Rotate();
+  private:
 
-	void Attack();
-
-	private:
-
-	//キャラクターの移動ベクトル
-	Vector3 move;
 
 	//ワールド変換データ
 	WorldTransform worldTransform_;
 	//モデル
 	Model* model_ = nullptr;
-		//テクスチャハンドル
+	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
-	Input* input_ = nullptr;
-	DebugText* debugText_ = nullptr;
-
-	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };

@@ -26,9 +26,10 @@ void Player::Update() {
 
 	//プレイヤーの行列計算
 	worldTransform_.translation_ += move;
-	WorldMat::TransferWorldMatrix(
+	TransferWorldMatrix(
 	  worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_,
 	  worldTransform_);
+
 	worldTransform_.TransferMatrix();
 
 
@@ -43,12 +44,16 @@ void Player::Update() {
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kmoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kmoveLimitY);
 
+	bullets_.remove_if([](std::unique_ptr<PlayerBullet>& bullet) {
+		return bullet->IsDead();
+	});
+
 	Rotate();
 	Move();
 	Attack();
 
-	if (bullet_) {
-		bullet_->Update();
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
+		bullet->Update();
 	}
 
 	debugText_->SetPos(50, 150);
@@ -99,17 +104,22 @@ void Player::Draw(ViewProjection viewProjection) {
 	
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	if (bullet_) {
-		bullet_->Draw(viewProjection);
+	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
+		bullet->Draw(viewProjection);
 	}
 }
 
 void Player::Attack() { 
-	if (input_->PushKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE)) {
 
-		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_);
+		const float kbulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kbulletSpeed);
 
-		bullet_ = newBullet;
+		velocity = VectorMatrix(velocity, worldTransform_);
+
+		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+
+		bullets_.push_back(std::move(newBullet));
 	}
 }

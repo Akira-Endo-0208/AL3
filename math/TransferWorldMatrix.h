@@ -4,18 +4,18 @@
 #include "ViewProjection.h"
 #include "WorldTransform.h"
 
-namespace WorldMat {
 
-	void ScaleMatrix(Vector3 scale,WorldTransform worldTransform);
+	Vector3 VectorMatrix(Vector3 vector, WorldTransform worldTransform);
 
-	void RotationX(Vector3 rotate, WorldTransform worldTransform);
+	Matrix4 ScaleMatrix(Vector3 scale, WorldTransform worldTransform);
 
-	void RotationY(Vector3 rotate, WorldTransform worldTransform);
+	Matrix4 RotationX(Vector3 rotate, WorldTransform worldTransform);
 
-	void RotationZ(Vector3 rotate, WorldTransform worldTransform);
+	Matrix4 RotationY(Vector3 rotate, WorldTransform worldTransform);
 
-	void TransferMatrix(Vector3 trans, WorldTransform worldTransform);
+	Matrix4 RotationZ(Vector3 rotate, WorldTransform worldTransform);
 
-	void TransferWorldMatrix(Vector3 scale,Vector3 rotate,Vector3 trans,WorldTransform& worldTransform);
+	Matrix4 TransferMatrix(Vector3 trans, WorldTransform worldTransform);
 
-}
+	Matrix4 TransferWorldMatrix(
+      Vector3 scale, Vector3 rotate, Vector3 trans, WorldTransform& worldTransform);

@@ -1,6 +1,6 @@
 #include "PlayerBullet.h"
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position) { 
+void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector3& velocity) { 
 	assert(model);
 
 	model_ = model;
@@ -12,14 +12,22 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position) {
 	worldTransform_.translation_ = position;
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
 	worldTransform_.rotation_ = {1.0f, 1.0f, 1.0f};
+
+	velocity_ = velocity;
+
 }
 
 void PlayerBullet::Update() {
 
-	WorldMat::TransferWorldMatrix(
+	TransferWorldMatrix(
 	  worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_,
 	  worldTransform_);
 
+	worldTransform_.translation_ += velocity_;
+
+	if (--deathTimer_ <= 0) {
+		isDead_ = true;
+	}
 	worldTransform_.TransferMatrix();
 }
 
