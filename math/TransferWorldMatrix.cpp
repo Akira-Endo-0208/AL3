@@ -6,9 +6,38 @@
 
 using namespace MathUtility;
 
-namespace WorldMat {
 
-void ScaleMatrix(Vector3 scale, WorldTransform worldTransform) {
+
+Vector3 VectorMatrix(Vector3 vector, WorldTransform worldTransform) {
+
+	Vector4 matVector = {
+		vector.x, vector.y, vector.z,0
+	};
+
+
+
+
+	Vector3 result{
+	  (matVector.x * worldTransform.matWorld_.m[0][0] + 
+	   matVector.y * worldTransform.matWorld_.m[1][0] + 
+	   matVector.z * worldTransform.matWorld_.m[2][0] + 
+	   matVector.w * worldTransform.matWorld_.m[3][0]),
+
+	  (matVector.x * worldTransform.matWorld_.m[0][1] + 
+	   matVector.y * worldTransform.matWorld_.m[1][1] + 
+	   matVector.z * worldTransform.matWorld_.m[2][1] + 
+	   matVector.w * worldTransform.matWorld_.m[3][1]),
+
+	  (matVector.x * worldTransform.matWorld_.m[0][2] + 
+	   matVector.y * worldTransform.matWorld_.m[1][2] + 
+	   matVector.z * worldTransform.matWorld_.m[2][2] + 
+	   matVector.w * worldTransform.matWorld_.m[3][2]) 
+	};
+
+	return result;
+}
+Matrix4 ScaleMatrix(Vector3 scale, WorldTransform worldTransform) {
+
 
 	Matrix4 matScale = {
 
@@ -24,11 +53,13 @@ void ScaleMatrix(Vector3 scale, WorldTransform worldTransform) {
 		0, 0, 0, 1
 	};
 	worldTransform.matWorld_ *= matScale;
-
 	worldTransform.TransferMatrix();
+
+	return worldTransform.matWorld_;
 }
 
-void RotationX(Vector3 rotate, WorldTransform worldTransform) {
+Matrix4 RotationX(Vector3 rotate, WorldTransform worldTransform) {
+
 
 	Matrix4 matRotX = {
 
@@ -63,9 +94,12 @@ void RotationX(Vector3 rotate, WorldTransform worldTransform) {
 	worldTransform.matWorld_ *= matRotX;
 
 	worldTransform.TransferMatrix();
+
+	return worldTransform.matWorld_;
 }
 
-void RotationY(Vector3 rotate, WorldTransform worldTransform) {
+Matrix4 RotationY(Vector3 rotate, WorldTransform worldTransform) {
+
 
 	Matrix4 matRotY = {
 
@@ -99,9 +133,13 @@ void RotationY(Vector3 rotate, WorldTransform worldTransform) {
 	worldTransform.matWorld_ *= matRotY;
 
 	worldTransform.TransferMatrix();
+	return worldTransform.matWorld_;
 }
 
-void RotationZ(Vector3 rotate, WorldTransform worldTransform) {
+Matrix4 RotationZ(Vector3 rotate, WorldTransform worldTransform) {
+
+	
+
 	Matrix4 matRotZ = {
 
 	  cosf(PI / rotate.z),
@@ -133,9 +171,13 @@ void RotationZ(Vector3 rotate, WorldTransform worldTransform) {
 	worldTransform.matWorld_ *= matRotZ;
 
 	worldTransform.TransferMatrix();
+	return worldTransform.matWorld_;
 }
 
-void TransferMatrix(Vector3 trans, WorldTransform worldTransform) {
+
+Matrix4 TransferMatrix(Vector3 trans, WorldTransform worldTransform) {
+
+	
 
 	Matrix4 matTrans = MathUtility::Matrix4Identity();
 
@@ -156,102 +198,27 @@ void TransferMatrix(Vector3 trans, WorldTransform worldTransform) {
 	worldTransform.matWorld_ *= matTrans;
 
 	worldTransform.TransferMatrix();
+
+	return worldTransform.matWorld_;
 }
 
-void TransferWorldMatrix(
+Matrix4 TransferWorldMatrix(
   Vector3 scale, Vector3 rotate, Vector3 trans, WorldTransform& worldTransform) {
 
-	Matrix4 matScale = {scale.x, 0,       0,       0,
+	Matrix4 result;
 
-	                    0,       scale.y, 0,       0,
-
-	                    0,       0,       scale.z, 0,
-
-	                    0,       0,       0,       1};
-
+	 Matrix4 matScale;
+	 matScale = ScaleMatrix(scale, worldTransform);
+	
 	Matrix4 matRot, matRotX, matRotY, matRotZ;
 
-	matRotZ = {
-
-	  cosf(PI / rotate.z),
-	  sinf(PI / rotate.z),
-	  0,
-	  0,
-
-	  -sinf(PI / rotate.z),
-	  cosf(PI / rotate.z),
-	  0,
-	  0,
-
-	  0,
-	  0,
-	  1,
-	  0,
-
-	  0,
-	  0,
-	  0,
-	  1};
-
-	matRotX = {
-
-	  1,
-	  0,
-	  0,
-	  0,
-
-	  0,
-	  cosf(PI / rotate.x),
-	  sinf(PI / rotate.x),
-	  0,
-
-	  0,
-	  -sinf(PI / rotate.x),
-	  cosf(PI / rotate.x),
-	  0,
-
-	  0,
-	  0,
-	  0,
-	  1
-
-	};
-
-	matRotY = {
-
-	  cosf(PI / rotate.y),
-	  0,
-	  -sinf(PI / rotate.y),
-	  0,
-
-	  0,
-	  1,
-	  0,
-	  0,
-
-	  sinf(PI / rotate.y),
-	  0,
-	  cosf(PI / rotate.y),
-	  0,
-
-	  0,
-	  0,
-	  0,
-	  1
-
-	};
+	matRotX = RotationX(rotate, worldTransform);
+	matRotY = RotationY(rotate, worldTransform);
+	matRotZ = RotationZ(rotate, worldTransform);
 
 	matRot = matRotZ * matRotX * matRotY;
 
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	matTrans = {1,       0,       0,       0,
-
-	            0,       1,       0,       0,
-
-	            0,       0,       1,       0,
-
-	            trans.x, trans.y, trans.z, 1};
+	Matrix4 matTrans = TransferMatrix(trans, worldTransform);
 
 	worldTransform.matWorld_ = {
 		1, 0, 0, 0,
@@ -261,7 +228,5 @@ void TransferWorldMatrix(
 	};
 	worldTransform.matWorld_ *= matScale * matRot * matTrans;
 
-
+	return worldTransform.matWorld_;
 }
-
-} // namespace WorldMat

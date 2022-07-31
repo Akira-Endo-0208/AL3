@@ -14,7 +14,6 @@
 #include <DirectXMath.h>
 #include "Player.h"
 
-using namespace WorldMat;
 using namespace DirectX;
 
 /// <summary>
