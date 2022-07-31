@@ -5,8 +5,10 @@
 #include "TransferWorldMatrix.h"
 #include <cassert>
 #include "PlayerBullet.h"
+#include <memory>
+#include <list>
 
-using namespace WorldMat;
+
 #pragma once
 class Player {
 
@@ -27,6 +29,8 @@ class Player {
 
 	void Attack();
 
+	Vector3 GetWorldPosition();
+
 	private:
 
 	//キャラクターの移動ベクトル
@@ -42,5 +46,5 @@ class Player {
 	Input* input_ = nullptr;
 	DebugText* debugText_ = nullptr;
 
-	PlayerBullet* bullet_ = nullptr;
+	std::list<std::unique_ptr<PlayerBullet>> bullets_;
 };
