@@ -1,21 +1,19 @@
+#pragma once
 #include "Model.h"
 #include "WorldTransform.h"
 #include "Input.h"
 #include "DebugText.h"
 #include "TransferWorldMatrix.h"
 #include <cassert>
-#include "PlayerBullet.h"
+#include "EnemyBullet.h"
 #include <memory>
 #include <list>
 
+class Enemy {
 
-#pragma once
-class Player {
-
-	public:
-
+  public:
 	//初期化
-	void Initialize(Model* model,uint32_t textureHandle);
+	void Initialize(Model* model, uint32_t textureHandle);
 
 	//更新
 	void Update();
@@ -25,24 +23,31 @@ class Player {
 
 	void Move();
 
-	void Rotate();
+	void Fire();
 
-	void Attack();
+	void InitializeApproach();
 
-	private:
+  private:
 
-	//キャラクターの移動ベクトル
 	Vector3 move;
 
 	//ワールド変換データ
 	WorldTransform worldTransform_;
 	//モデル
 	Model* model_ = nullptr;
-		//テクスチャハンドル
+	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
-	Input* input_ = nullptr;
-	DebugText* debugText_ = nullptr;
+	std::list<std::unique_ptr<EnemyBullet>> bullets_;
 
-	std::list<std::unique_ptr<PlayerBullet>> bullets_;
+	enum class Phase {
+		Approach,
+		Leave,
+	};
+
+	Phase phase_ = Phase::Approach;
+
+	static const int kFIreInterval = 60;
+
+	int32_t shotTimer = 60;
 };

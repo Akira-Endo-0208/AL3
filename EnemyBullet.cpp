@@ -1,11 +1,12 @@
-#include "PlayerBullet.h"
+#include "EnemyBullet.h"
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector3& velocity) { 
+
+void EnemyBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity) {
 	assert(model);
 
 	model_ = model;
 
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	textureHandle_ = TextureManager::Load("reimu.png");
 
 	worldTransform_.Initialize();
 
@@ -14,10 +15,9 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position,const Vector
 	worldTransform_.rotation_ = {1.0f, 1.0f, 1.0f};
 
 	velocity_ = velocity;
-
 }
 
-void PlayerBullet::Update() {
+void EnemyBullet::Update() {
 
 	TransferWorldMatrix(
 	  worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_,
@@ -31,6 +31,6 @@ void PlayerBullet::Update() {
 	worldTransform_.TransferMatrix();
 }
 
-void PlayerBullet::Draw(const ViewProjection& viewProjection) {
+void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }
