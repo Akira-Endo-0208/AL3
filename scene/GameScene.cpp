@@ -11,8 +11,6 @@ GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
 
-	//自キャラの削除
-	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -25,10 +23,14 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 	debugCamera_ = new DebugCamera(1280, 720);
 	//自キャラの生成
-	player_ = new Player();
+	Player* newPlayer = new Player();
+	newPlayer->Initialize(model_, textureHandle_);
 	//自キャラの初期化
-	player_->Initialize(model_,textureHandle_);
+	player_.reset(newPlayer);
 
+	Enemy* newEnemy = new Enemy();
+	newEnemy->Initialize(model_, textureHandle_);
+	enemy_.reset(newEnemy);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
@@ -43,8 +45,8 @@ void GameScene::Update() {
 
 	//自キャラの更新
 	player_->Update();
-
-
+	enemy_->Update();
+	
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_K)) {
@@ -95,7 +97,7 @@ void GameScene::Draw() {
 
 	//自キャラの削除
 	player_->Draw(viewProjection_);
-
+	enemy_->Draw(viewProjection_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 

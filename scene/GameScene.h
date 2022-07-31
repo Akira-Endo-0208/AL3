@@ -13,8 +13,9 @@
 #include "TransferWorldMatrix.h"
 #include <DirectXMath.h>
 #include "Player.h"
+#include "Enemy.h"
 
-using namespace WorldMat;
+
 using namespace DirectX;
 
 /// <summary>
@@ -73,7 +74,9 @@ class GameScene {
 	DebugCamera* debugCamera_ = nullptr;
 
 	ViewProjection viewProjection_;
-	Player* player_ = nullptr;
+	std::unique_ptr <Player>player_;
+	std::unique_ptr <Enemy>enemy_;
+	
 	bool isDebugCameraActive_ = false;
 
 	/// <summary>
