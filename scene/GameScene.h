@@ -14,7 +14,7 @@
 #include <DirectXMath.h>
 #include "Player.h"
 #include "Enemy.h"
-
+#include "Skydome.h"
 
 using namespace DirectX;
 
@@ -63,6 +63,7 @@ class GameScene {
 		kNumPartId
 	};
 
+	void CheckAllColisions();
 
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
@@ -76,7 +77,9 @@ class GameScene {
 	ViewProjection viewProjection_;
 	std::unique_ptr <Player>player_;
 	std::unique_ptr <Enemy>enemy_;
-	
+	std::unique_ptr <Skydome> skydome_;
+	Model* modelSkydome_ = nullptr;
+
 	bool isDebugCameraActive_ = false;
 
 	/// <summary>
