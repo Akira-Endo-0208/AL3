@@ -31,6 +31,10 @@ class Player {
 
 	Vector3 GetWorldPosition();
 
+	void OnColision();
+
+	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
+
 	private:
 
 	//キャラクターの移動ベクトル
