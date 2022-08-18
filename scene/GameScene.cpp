@@ -10,7 +10,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
-
+	delete modelSkydome_;
 }
 
 void GameScene::Initialize() {
@@ -20,6 +20,7 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
+	
 	model_ = Model::Create();
 	debugCamera_ = new DebugCamera(1280, 720);
 	//自キャラの生成
@@ -34,13 +35,26 @@ void GameScene::Initialize() {
 
 	enemy_.get()->SetPlayer(player_.get());
 
+	
+
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+
+	Skydome* newSkydome = new Skydome();
+	newSkydome->Initialize(modelSkydome_);
+	skydome_.reset(newSkydome);
+
+
+	RailCamera* newRailCamera = new RailCamera();
+	newRailCamera->Initialize(viewProjection_);
+	railCamera_.reset(newRailCamera);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
 
-
 	viewProjection_.Initialize();
+
+
 }
 
 void GameScene::Update() { 
@@ -49,7 +63,9 @@ void GameScene::Update() {
 	//自キャラの更新
 	player_->Update();
 	enemy_->Update();
-	
+	skydome_->Update();
+	railCamera_->Update();
+
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_K)) {
@@ -71,6 +87,74 @@ void GameScene::Update() {
 
 }
 
+void GameScene::CheckAllColisions() { 
+	Vector3 posA, posB;
+	float posResult;
+	const float circleA = 1;
+	const float circleB = 1;
+	float circleResult;
+
+	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+
+	posA = player_->GetWorldPosition();
+
+	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
+	
+		posB = bullet->GetWorldPosition();
+	
+
+		posResult =
+		  (posB.x - posA.x) * (posB.x - posA.x)
+		+ (posB.y - posA.y) * (posB.y - posA.y) 
+		+ (posB.z - posA.z) * (posB.z - posA.z);
+
+		circleResult = (circleA + circleB) * (circleA + circleB);
+
+		if (posResult <= circleResult) {
+			player_->OnColision();
+
+			bullet->OnColision();
+		}
+	}
+
+	posA = enemy_->GetWorldPosition();
+
+	for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
+
+		posB = bullet->GetWorldPosition();
+
+		posResult = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) +
+		            (posB.z - posA.z) * (posB.z - posA.z);
+
+		circleResult = (circleA + circleB) * (circleA + circleB);
+
+		if (posResult <= circleResult) {
+			enemy_->OnColision();
+
+			bullet->OnColision();
+		}
+	}
+
+	for (const std::unique_ptr<EnemyBullet>& enemybullet : enemyBullets) {
+		for (const std::unique_ptr<PlayerBullet>& playerbullet : playerBullets) {
+			posA = playerbullet->GetWorldPosition();
+			posB = enemybullet->GetWorldPosition();
+
+			posResult = (posB.x - posA.x) * (posB.x - posA.x) +
+			            (posB.y - posA.y) * (posB.y - posA.y) +
+			            (posB.z - posA.z) * (posB.z - posA.z);
+
+			circleResult = (circleA + circleB) * (circleA + circleB);
+
+			if (posResult <= circleResult) {
+				enemybullet->OnColision();
+
+				playerbullet->OnColision();
+			}
+		}
+	}
+}
 void GameScene::Draw() {
 
 	// コマンドリストの取得
@@ -101,6 +185,8 @@ void GameScene::Draw() {
 	//自キャラの削除
 	player_->Draw(viewProjection_);
 	enemy_->Draw(viewProjection_);
+	skydome_->Draw(viewProjection_);
+
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 
