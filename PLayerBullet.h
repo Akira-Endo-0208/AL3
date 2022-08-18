@@ -16,6 +16,11 @@ class PlayerBullet {
 		void Draw(const ViewProjection& viewProjection);
 
 		bool IsDead() const { return isDead_; }
+
+		void OnColision();
+
+		Vector3 GetWorldPosition();
+
 	private:
 
 		//ワールド変換データ

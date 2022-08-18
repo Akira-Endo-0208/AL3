@@ -31,7 +31,8 @@ void Enemy::Update() {
 
 	worldTransform_.TransferMatrix();
 
-	
+	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) { return bullet->IsDead(); });
+
 	Move();
 
 	InitializeApproach();
@@ -80,7 +81,7 @@ void Enemy::Fire() {
 
 	assert(player_);
 
-	const float kbulletSpeed = 1.0f;
+	const float kbulletSpeed = 10.0f;
 
 	player_->GetWorldPosition();
 	GetWorldPosition();
@@ -95,13 +96,14 @@ void Enemy::Fire() {
 	float length =
 	  sqrt(velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z);
 
-	velocity = {
-	  velocity.x / length,
-	  velocity.y / length,
-	  velocity.z / length,
-	};
+	velocity = { velocity.x / length, velocity.y / length, velocity.z / length};
+	
 
-	velocity = VectorMatrix(velocity, worldTransform_);
+	velocity.x * kbulletSpeed;
+	velocity.y * kbulletSpeed;
+	velocity.z * kbulletSpeed;
+
+	
 
 	std::unique_ptr<EnemyBullet> newBullet = std::make_unique<EnemyBullet>();
 
@@ -131,3 +133,5 @@ Vector3 Enemy::GetWorldPosition() {
 
 	return worldPos;
 }
+
+void Enemy::OnColision() {}
