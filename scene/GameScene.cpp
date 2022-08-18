@@ -71,6 +71,74 @@ void GameScene::Update() {
 
 }
 
+void GameScene::CheckAllColisions() { 
+	Vector3 posA, posB;
+	float posResult;
+	const float circleA = 1;
+	const float circleB = 1;
+	float circleResult;
+
+	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+
+	posA = player_->GetWorldPosition();
+
+	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
+	
+		posB = bullet->GetWorldPosition();
+	
+
+		posResult =
+		  (posB.x - posA.x) * (posB.x - posA.x)
+		+ (posB.y - posA.y) * (posB.y - posA.y) 
+		+ (posB.z - posA.z) * (posB.z - posA.z);
+
+		circleResult = (circleA + circleB) * (circleA + circleB);
+
+		if (posResult <= circleResult) {
+			player_->OnColision();
+
+			bullet->OnColision();
+		}
+	}
+
+	posA = enemy_->GetWorldPosition();
+
+	for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
+
+		posB = bullet->GetWorldPosition();
+
+		posResult = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) +
+		            (posB.z - posA.z) * (posB.z - posA.z);
+
+		circleResult = (circleA + circleB) * (circleA + circleB);
+
+		if (posResult <= circleResult) {
+			enemy_->OnColision();
+
+			bullet->OnColision();
+		}
+	}
+
+	for (const std::unique_ptr<EnemyBullet>& enemybullet : enemyBullets) {
+		for (const std::unique_ptr<PlayerBullet>& playerbullet : playerBullets) {
+			posA = playerbullet->GetWorldPosition();
+			posB = enemybullet->GetWorldPosition();
+
+			posResult = (posB.x - posA.x) * (posB.x - posA.x) +
+			            (posB.y - posA.y) * (posB.y - posA.y) +
+			            (posB.z - posA.z) * (posB.z - posA.z);
+
+			circleResult = (circleA + circleB) * (circleA + circleB);
+
+			if (posResult <= circleResult) {
+				enemybullet->OnColision();
+
+				playerbullet->OnColision();
+			}
+		}
+	}
+}
 void GameScene::Draw() {
 
 	// コマンドリストの取得

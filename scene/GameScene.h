@@ -63,6 +63,7 @@ class GameScene {
 		kNumPartId
 	};
 
+	void CheckAllColisions();
 
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;

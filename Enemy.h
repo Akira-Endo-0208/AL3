@@ -34,6 +34,9 @@ class Enemy {
 
 	Vector3 GetWorldPosition();
 
+	void OnColision();
+
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
   private:
 
 	Vector3 move;
