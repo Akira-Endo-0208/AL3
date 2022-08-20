@@ -68,13 +68,13 @@ Matrix4 RotationX(Vector3 rotate, WorldTransform worldTransform) {
 	  0,
 
 	  0,
-	  cosf(PI / rotate.x),
-	  sinf(PI / rotate.x),
+	  cosf(rotate.x),
+	  sinf(rotate.x),
 	  0,
 
 	  0,
-	  -sinf(PI / rotate.x),
-	  cosf(PI / rotate.x),
+	  -sinf(rotate.x),
+	  cosf(rotate.x),
 	  0,
 
 	  0,
@@ -100,9 +100,9 @@ Matrix4 RotationY(Vector3 rotate, WorldTransform worldTransform) {
 
 	Matrix4 matRotY = {
 
-	  cosf(PI / rotate.y),
+	  cosf(rotate.y),
 	  0,
-	  -sinf(PI / rotate.y),
+	  -sinf(rotate.y),
 	  0,
 
 	  0,
@@ -110,9 +110,9 @@ Matrix4 RotationY(Vector3 rotate, WorldTransform worldTransform) {
 	  0,
 	  0,
 
-	  sinf(PI / rotate.y),
+	  sinf(rotate.y),
 	  0,
-	  cosf(PI / rotate.y),
+	  cosf(rotate.y),
 	  0,
 
 	  0,
@@ -138,13 +138,13 @@ Matrix4 RotationZ(Vector3 rotate, WorldTransform worldTransform) {
 
 	Matrix4 matRotZ = {
 
-	  cosf(PI / rotate.z),
-	  sinf(PI / rotate.z),
+	  cosf(rotate.z),
+	  sinf(rotate.z),
 	  0,
 	  0,
 
-	  -sinf(PI / rotate.z),
-	  cosf(PI / rotate.z),
+	  -sinf(rotate.z),
+	  cosf(rotate.z),
 	  0,
 	  0,
 
@@ -225,4 +225,13 @@ Matrix4 TransferWorldMatrix(
 	worldTransform.matWorld_ *= matScale * matRot * matTrans;
 
 	return worldTransform.matWorld_;
+}
+
+Vector3 ChangeVector(Matrix4 matworld) { 
+	
+	Vector3 result;
+
+	result = {matworld.m[3][0], matworld.m[3][1], matworld.m[3][2]};
+
+	return result;
 }

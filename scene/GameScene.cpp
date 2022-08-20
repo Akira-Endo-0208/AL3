@@ -45,8 +45,10 @@ void GameScene::Initialize() {
 
 
 	RailCamera* newRailCamera = new RailCamera();
-	newRailCamera->Initialize(viewProjection_);
+	newRailCamera->Initialize(cameraTranslate,cameraRotate);	
 	railCamera_.reset(newRailCamera);
+	player_->SetCameraWorldTransform(railCamera_->GetMatrixWorld());
+
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
@@ -65,7 +67,7 @@ void GameScene::Update() {
 	enemy_->Update();
 	skydome_->Update();
 	railCamera_->Update();
-
+	player_->SetCameraWorldTransform(railCamera_->GetMatrixWorld());
 
 	#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_K)) {
@@ -183,9 +185,9 @@ void GameScene::Draw() {
 	/// </summary>
 
 	//自キャラの削除
-	player_->Draw(viewProjection_);
-	enemy_->Draw(viewProjection_);
-	skydome_->Draw(viewProjection_);
+	player_->Draw(railCamera_->GetViewProjection());
+	enemy_->Draw(railCamera_->GetViewProjection());
+	skydome_->Draw(railCamera_->GetViewProjection());
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

@@ -19,3 +19,5 @@
 
 	Matrix4 TransferWorldMatrix(
       Vector3 scale, Vector3 rotate, Vector3 trans, WorldTransform& worldTransform);
+
+	Vector3 ChangeVector(Matrix4 matworld);

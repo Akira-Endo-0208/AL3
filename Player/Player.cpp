@@ -1,5 +1,5 @@
 #include "Player.h"
-
+#include "RailCamera.h"
 void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//NULLポインタチェック
@@ -15,8 +15,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 	//プレイヤーのワールド行列に必要な要素の宣言
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
-	worldTransform_.rotation_ = {1.0f, 1.0f, 1.0f};
-	worldTransform_.translation_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
+	worldTransform_.translation_ = {0.0f, 0.0f, 20.0f};
 
 	worldTransform_.Initialize();
 
@@ -24,11 +24,16 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update() {
 
-	//プレイヤーの行列計算
+	
 	worldTransform_.translation_ += move;
+	
+	//プレイヤーの行列計算
 	TransferWorldMatrix(
 	  worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_,
 	  worldTransform_);
+
+
+	worldTransform_.matWorld_ *= cameraMat;
 
 	worldTransform_.TransferMatrix();
 
@@ -118,7 +123,7 @@ void Player::Attack() {
 		velocity = VectorMatrix(velocity, worldTransform_);
 
 		std::unique_ptr<PlayerBullet> newBullet = std::make_unique<PlayerBullet>();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(model_, ChangeVector(worldTransform_.matWorld_), velocity);
 
 		bullets_.push_back(std::move(newBullet));
 	}
@@ -138,3 +143,4 @@ Vector3 Player::GetWorldPosition() {
 void Player::OnColision() {
 
 }
+

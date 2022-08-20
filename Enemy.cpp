@@ -13,7 +13,7 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 
 	//プレイヤーのワールド行列に必要な要素の宣言
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
-	worldTransform_.rotation_ = {1.0f, 1.0f, 1.0f};
+	worldTransform_.rotation_ = {0.0f, 0.0f, 0.0f};
 	worldTransform_.translation_ = {0.0f, 0.0f, 100.0f};
 
 	worldTransform_.Initialize();

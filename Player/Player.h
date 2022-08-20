@@ -9,6 +9,7 @@
 #include <list>
 
 
+
 #pragma once
 class Player {
 
@@ -35,6 +36,10 @@ class Player {
 
 	const std::list<std::unique_ptr<PlayerBullet>>& GetBullets() { return bullets_; }
 
+	void SetCameraWorldTransform(Matrix4 worldTransform) { 
+		cameraMat = worldTransform;
+	}
+
 	private:
 
 	//キャラクターの移動ベクトル
@@ -51,4 +56,6 @@ class Player {
 	DebugText* debugText_ = nullptr;
 
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
+
+	Matrix4 cameraMat;
 };

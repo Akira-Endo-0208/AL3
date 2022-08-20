@@ -4,14 +4,20 @@
 #include "DebugText.h"
 #include <cassert>
 
+using namespace MathUtility;
+
 class RailCamera {
 
   public:
 	//初期化
-	void Initialize(ViewProjection& viewProjection);
+	void Initialize(Vector3 translate,Vector3 rotate);
 
 	//更新
 	void Update();
+
+	const ViewProjection& GetViewProjection() { return viewProjection_; }
+
+	const Matrix4& GetMatrixWorld() { return worldTransform_.matWorld_; }
 
   private:
 	//ワールド変換データ
@@ -19,4 +25,6 @@ class RailCamera {
 	ViewProjection viewProjection_;
 
 	DebugText* debugText_ = nullptr;
+
 };
+

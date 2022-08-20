@@ -17,7 +17,6 @@
 #include "Skydome.h"
 #include "RailCamera.h"
 
-
 using namespace DirectX;
 
 /// <summary>
@@ -83,6 +82,8 @@ class GameScene {
 	std::unique_ptr<RailCamera> railCamera_;
 	Model* modelSkydome_ = nullptr;
 	
+	Vector3 cameraTranslate = {0, 0, -100};
+	Vector3 cameraRotate = {0, 0, 0};
 	bool isDebugCameraActive_ = false;
 
 	/// <summary>
