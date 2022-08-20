@@ -17,7 +17,6 @@
 #include "Skydome.h"
 #include "RailCamera.h"
 
-
 using namespace DirectX;
 
 /// <summary>

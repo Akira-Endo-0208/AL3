@@ -15,6 +15,7 @@ void RailCamera::Update() {
 
 	Vector3 forward(0, 0, 1);
 
+	forward = worldTransform_.translation_;
 
 	viewProjection_.target = {
 	  viewProjection_.eye.x + forward.x,
