@@ -11,6 +11,7 @@
 
 
 class Player;
+class GameScene;
 
 class Enemy {
 
@@ -36,7 +37,10 @@ class Enemy {
 
 	void OnColision();
 
-	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return bullets_; }
+
+	void SetGameScene(GameScene* gameScene) { gamescene_ = gameScene; }
+
+	
   private:
 
 	Vector3 move;
@@ -48,7 +52,7 @@ class Enemy {
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 
-	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+
 
 	enum class Phase {
 		Approach,
@@ -62,4 +66,5 @@ class Enemy {
 	int32_t shotTimer = 60;
 
 	Player* player_ = nullptr;
+	GameScene* gamescene_ = nullptr;
 };

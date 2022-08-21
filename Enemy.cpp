@@ -1,5 +1,7 @@
 #include "Enemy.h"
 #include "Player.h"
+#include "GameScene.h"
+
 void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 
 	// NULLポインタチェック
@@ -9,7 +11,7 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 	model_ = model;
 	textureHandle_ = textureHandle;
 
-	
+	SetGameScene(gamescene_);
 
 	//プレイヤーのワールド行列に必要な要素の宣言
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
@@ -31,15 +33,13 @@ void Enemy::Update() {
 
 	worldTransform_.TransferMatrix();
 
-	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) { return bullet->IsDead(); });
+
 
 	Move();
 
 	InitializeApproach();
 
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
-		bullet->Update();
-	}
+
 }
 
 void Enemy::Move() {
@@ -71,10 +71,8 @@ void Enemy::Move() {
 void Enemy::Draw(ViewProjection viewProjection) {
 
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+	
 
-	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
-		bullet->Draw(viewProjection);
-	}
 }
 
 void Enemy::Fire() {

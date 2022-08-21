@@ -29,13 +29,15 @@ void GameScene::Initialize() {
 	//自キャラの初期化
 	player_.reset(newPlayer);
 
-	Enemy* newEnemy = new Enemy();
+	std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
 	newEnemy->Initialize(model_, textureHandle_);
-	enemy_.reset(newEnemy);
-
-	enemy_.get()->SetPlayer(player_.get());
+	enemy_.push_back(std::move(newEnemy));
 
 	
+
+	for (std::unique_ptr<Enemy>& enemy : enemy_) {
+		enemy.get()->SetPlayer(player_.get());
+	}
 
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 
@@ -64,9 +66,13 @@ void GameScene::Update() {
 
 	//自キャラの更新
 	player_->Update();
-	enemy_->Update();
+	for (std::unique_ptr<Enemy>& enemy : enemy_) {
+		enemy->Update();
+	}
+	
 	skydome_->Update();
 	railCamera_->Update();
+
 	player_->SetCameraWorldTransform(railCamera_->GetMatrixWorld());
 
 	#ifdef _DEBUG
@@ -89,6 +95,26 @@ void GameScene::Update() {
 
 }
 
+
+
+void GameScene::AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet) {
+	enemybullets_.push_back(std::move(enemyBullet));
+}
+
+void GameScene::EnemyBulletUpdate() {
+
+
+	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
+		bullet->Update();
+	}
+}
+
+void GameScene::EnemyBulletDraw() {
+	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
+		bullet->Draw(viewProjection_);
+	}
+}
+
 void GameScene::CheckAllColisions() { 
 	Vector3 posA, posB;
 	float posResult;
@@ -97,7 +123,7 @@ void GameScene::CheckAllColisions() {
 	float circleResult;
 
 	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
-	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = enemy_->GetBullets();
+	const std::list<std::unique_ptr<EnemyBullet>>& enemyBullets = GetBullets();
 
 	posA = player_->GetWorldPosition();
 
@@ -120,7 +146,7 @@ void GameScene::CheckAllColisions() {
 		}
 	}
 
-	posA = enemy_->GetWorldPosition();
+	posA = enemy_.begin()->get()->GetWorldPosition();
 
 	for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
 
@@ -132,7 +158,7 @@ void GameScene::CheckAllColisions() {
 		circleResult = (circleA + circleB) * (circleA + circleB);
 
 		if (posResult <= circleResult) {
-			enemy_->OnColision();
+			enemy_.begin()->get()->OnColision();
 
 			bullet->OnColision();
 		}
@@ -186,7 +212,10 @@ void GameScene::Draw() {
 
 	//自キャラの削除
 	player_->Draw(railCamera_->GetViewProjection());
-	enemy_->Draw(railCamera_->GetViewProjection());
+	for (std::unique_ptr<Enemy>& enemy : enemy_) {
+		enemy->Draw(railCamera_->GetViewProjection());
+	}
+
 	skydome_->Draw(railCamera_->GetViewProjection());
 
 	// 3Dオブジェクト描画後処理

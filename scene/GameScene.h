@@ -66,6 +66,17 @@ class GameScene {
 
 	void CheckAllColisions();
 
+	void EnemyUpdate();
+
+	void EnemyDraw(const ViewProjection& viewProjection);
+
+	void AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet);
+
+	const std::list<std::unique_ptr<EnemyBullet>>& GetBullets() { return enemybullets_; }
+
+	void EnemyBulletUpdate();
+
+	void EnemyBulletDraw();
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -85,7 +96,8 @@ class GameScene {
 	Vector3 cameraTranslate = {0, 0, -100};
 	Vector3 cameraRotate = {0, 0, 0};
 	bool isDebugCameraActive_ = false;
-
+	std::list<std::unique_ptr<Enemy>> enemy_;
+	std::list<std::unique_ptr<EnemyBullet>> enemybullets_;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
