@@ -38,9 +38,10 @@ class Enemy {
 	void OnColision();
 
 
-	void SetGameScene(GameScene* gameScene) { gamescene_ = gameScene; }
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 
-	
+	bool IsDead() const { return isDead_; }
+
   private:
 
 	Vector3 move;
@@ -66,5 +67,9 @@ class Enemy {
 	int32_t shotTimer = 60;
 
 	Player* player_ = nullptr;
-	GameScene* gamescene_ = nullptr;
+
+	GameScene* gameScene_ = nullptr;
+
+	//デスフラグ
+	bool isDead_ = false;
 };

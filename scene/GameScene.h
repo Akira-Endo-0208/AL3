@@ -16,6 +16,7 @@
 #include "Enemy.h"
 #include "Skydome.h"
 #include "RailCamera.h"
+#include <sstream>
 
 using namespace DirectX;
 
@@ -77,6 +78,12 @@ class GameScene {
 	void EnemyBulletUpdate();
 
 	void EnemyBulletDraw();
+
+	void LoadEnemyPopData();
+
+	void UpdateEnemyPopCommands();
+
+	void EnemyPop(Vector3 vector);
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -88,7 +95,6 @@ class GameScene {
 
 	ViewProjection viewProjection_;
 	std::unique_ptr <Player>player_;
-	std::unique_ptr <Enemy>enemy_;
 	std::unique_ptr <Skydome> skydome_;
 	std::unique_ptr<RailCamera> railCamera_;
 	Model* modelSkydome_ = nullptr;
@@ -97,7 +103,10 @@ class GameScene {
 	Vector3 cameraRotate = {0, 0, 0};
 	bool isDebugCameraActive_ = false;
 	std::list<std::unique_ptr<Enemy>> enemy_;
+
 	std::list<std::unique_ptr<EnemyBullet>> enemybullets_;
+
+	std::stringstream enemyPopCommands;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

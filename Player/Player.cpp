@@ -113,7 +113,6 @@ void Player::Draw(ViewProjection viewProjection) {
 		bullet->Draw(viewProjection);
 	}
 }
-
 void Player::Attack() { 
 	if (input_->TriggerKey(DIK_SPACE)) {
 
@@ -132,10 +131,10 @@ void Player::Attack() {
 Vector3 Player::GetWorldPosition() {
 
 	Vector3 worldPos;
-
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
+ 
+  	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
 }

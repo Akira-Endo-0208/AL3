@@ -11,7 +11,7 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 	model_ = model;
 	textureHandle_ = textureHandle;
 
-	SetGameScene(gamescene_);
+
 
 	//プレイヤーのワールド行列に必要な要素の宣言
 	worldTransform_.scale_ = {1.0f, 1.0f, 1.0f};
@@ -24,17 +24,17 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 
 void Enemy::Update() {
 
-
+	worldTransform_.translation_ += move;
 	TransferWorldMatrix(
 	  worldTransform_.scale_, worldTransform_.rotation_, worldTransform_.translation_,
 	  worldTransform_);
 
 	
 
+
 	worldTransform_.TransferMatrix();
 
-
-
+	gameScene_->EnemyUpdate();
 	Move();
 
 	InitializeApproach();
@@ -79,7 +79,7 @@ void Enemy::Fire() {
 
 	assert(player_);
 
-	const float kbulletSpeed = 10.0f;
+	const float kbulletSpeed = 1.0f;
 
 	player_->GetWorldPosition();
 	GetWorldPosition();
@@ -97,8 +97,6 @@ void Enemy::Fire() {
 	velocity = { velocity.x / length, velocity.y / length, velocity.z / length};
 	
 
-	velocity.x * kbulletSpeed;
-	velocity.y * kbulletSpeed;
 	velocity.z * kbulletSpeed;
 
 	
@@ -107,14 +105,16 @@ void Enemy::Fire() {
 
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-	bullets_.push_back(std::move(newBullet));
+
+	gameScene_->AddEnemyBullet(std::move(newBullet));
+
 }
 
 void Enemy::InitializeApproach() { 
 	shotTimer--;
 
 	if (shotTimer < 0) {
-
+		
 		Fire();
 		shotTimer = kFIreInterval;
 	}
@@ -125,11 +125,11 @@ Vector3 Enemy::GetWorldPosition() {
 
 	Vector3 worldPos;
 
-	worldPos.x = worldTransform_.translation_.x;
-	worldPos.y = worldTransform_.translation_.y;
-	worldPos.z = worldTransform_.translation_.z;
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return worldPos;
 }
 
-void Enemy::OnColision() {}
+void Enemy::OnColision() { isDead_ = true; }

@@ -3,7 +3,7 @@
 #include "TextureManager.h"
 #include <cassert>
 #include <random>
-
+#include <fstream>
 
 GameScene::GameScene() {}
 
@@ -20,7 +20,7 @@ void GameScene::Initialize() {
 	audio_ = Audio::GetInstance();
 	debugText_ = DebugText::GetInstance();
 	textureHandle_ = TextureManager::Load("mario.jpg");
-	
+
 	model_ = Model::Create();
 	debugCamera_ = new DebugCamera(1280, 720);
 	//自キャラの生成
@@ -29,58 +29,58 @@ void GameScene::Initialize() {
 	//自キャラの初期化
 	player_.reset(newPlayer);
 
-	std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
-	newEnemy->Initialize(model_, textureHandle_);
-	enemy_.push_back(std::move(newEnemy));
+	for (int i = 0; i < 30; i++) {
 
-	
+		std::unique_ptr<Enemy> newEnemy = std::make_unique<Enemy>();
+		newEnemy->Initialize(model_, textureHandle_);
+		enemy_.push_back(std::move(newEnemy));
 
-	for (std::unique_ptr<Enemy>& enemy : enemy_) {
-		enemy.get()->SetPlayer(player_.get());
 	}
-
+	for (std::unique_ptr<Enemy>& enemy : enemy_) {
+		
+		enemy->SetPlayer(player_.get());
+		enemy->SetGameScene(this);
+	}
+	
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
 
 	Skydome* newSkydome = new Skydome();
 	newSkydome->Initialize(modelSkydome_);
 	skydome_.reset(newSkydome);
 
-
 	RailCamera* newRailCamera = new RailCamera();
-	newRailCamera->Initialize(cameraTranslate,cameraRotate);	
+	newRailCamera->Initialize(cameraTranslate, cameraRotate);
 	railCamera_.reset(newRailCamera);
 	player_->SetCameraWorldTransform(railCamera_->GetMatrixWorld());
-
 
 	AxisIndicator::GetInstance()->SetVisible(true);
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 
-
 	viewProjection_.Initialize();
-
-
 }
 
-void GameScene::Update() { 
+void GameScene::Update() {
 	debugCamera_->Update();
-
+	CheckAllColisions();
 	//自キャラの更新
 	player_->Update();
+
 	for (std::unique_ptr<Enemy>& enemy : enemy_) {
 		enemy->Update();
 	}
+	EnemyBulletUpdate();
 	
 	skydome_->Update();
 	railCamera_->Update();
 
 	player_->SetCameraWorldTransform(railCamera_->GetMatrixWorld());
 
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	if (input_->TriggerKey(DIK_K)) {
 		isDebugCameraActive_ = !isDebugCameraActive_;
 	}
 
-	#endif
+#endif
 
 	if (isDebugCameraActive_) {
 		debugCamera_->Update();
@@ -91,35 +91,42 @@ void GameScene::Update() {
 		viewProjection_.UpdateMatrix();
 		viewProjection_.TransferMatrix();
 	}
-
-
 }
 
+void GameScene::AddEnemyBullet(std::unique_ptr<EnemyBullet>enemyBullet) {
 
-
-void GameScene::AddEnemyBullet(std::unique_ptr<EnemyBullet> enemyBullet) {
 	enemybullets_.push_back(std::move(enemyBullet));
+
 }
 
 void GameScene::EnemyBulletUpdate() {
 
-
 	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
 		bullet->Update();
 	}
+
+	enemybullets_.remove_if([](std::unique_ptr<EnemyBullet>& enemybullets) { return enemybullets->IsDead(); });
 }
 
 void GameScene::EnemyBulletDraw() {
+
 	for (std::unique_ptr<EnemyBullet>& bullet : enemybullets_) {
 		bullet->Draw(viewProjection_);
 	}
+
 }
 
-void GameScene::CheckAllColisions() { 
-	Vector3 posA, posB;
+void GameScene::EnemyUpdate() {
+
+	enemy_.remove_if([](std::unique_ptr<Enemy>& enemy) { return enemy->IsDead(); });
+}
+void GameScene::CheckAllColisions() {
+	Vector3 posA, posB,posC,posD;
 	float posResult;
-	const float circleA = 1;
-	const float circleB = 1;
+	const float circleA = 20;
+	const float circleB = 20;
+	const float circleC = 20;
+	const float circleD = 20;
 	float circleResult;
 
 	const std::list<std::unique_ptr<PlayerBullet>>& playerBullets = player_->GetBullets();
@@ -127,53 +134,56 @@ void GameScene::CheckAllColisions() {
 
 	posA = player_->GetWorldPosition();
 
-	for (const std::unique_ptr<EnemyBullet>& bullet : enemyBullets) {
-	
-		posB = bullet->GetWorldPosition();
-	
+	for (const std::unique_ptr<EnemyBullet>& enemybullet : enemyBullets) {
 
-		posResult =
-		  (posB.x - posA.x) * (posB.x - posA.x)
-		+ (posB.y - posA.y) * (posB.y - posA.y) 
-		+ (posB.z - posA.z) * (posB.z - posA.z);
+		posD = enemybullet->GetWorldPosition();
 
-		circleResult = (circleA + circleB) * (circleA + circleB);
+		posResult = (posD.x - posA.x) * (posD.x - posA.x) + 
+					(posD.y - posA.y) * (posD.y - posA.y) +
+		            (posD.z - posA.z) * (posD.z - posA.z);
+
+		circleResult = (circleA + circleD) * (circleA + circleD);
 
 		if (posResult <= circleResult) {
-			player_->OnColision();
 
-			bullet->OnColision();
+			player_->OnColision();
+			enemybullet->OnColision();
 		}
 	}
 
-	posA = enemy_.begin()->get()->GetWorldPosition();
+	for (const std::unique_ptr<Enemy>& enemy : enemy_) {
+		for (const std::unique_ptr<PlayerBullet>& playerbullet : playerBullets) {
 
-	for (const std::unique_ptr<PlayerBullet>& bullet : playerBullets) {
+			
+ 			posB = playerbullet->GetWorldPosition();
+ 			posC = enemy->GetWorldPosition();
 
-		posB = bullet->GetWorldPosition();
+			posResult = (posC.x - posB.x) * (posC.x - posB.x) +
+			            (posC.y - posB.y) * (posC.y - posB.y) +
+			            (posC.z - posB.z) * (posC.z - posB.z);
 
-		posResult = (posB.x - posA.x) * (posB.x - posA.x) + (posB.y - posA.y) * (posB.y - posA.y) +
-		            (posB.z - posA.z) * (posB.z - posA.z);
+			circleResult = (circleB + circleC) * (circleB + circleC);
 
-		circleResult = (circleA + circleB) * (circleA + circleB);
+			if (posResult <= circleResult) {
 
-		if (posResult <= circleResult) {
-			enemy_.begin()->get()->OnColision();
+				enemy->OnColision();
 
-			bullet->OnColision();
+				playerbullet->OnColision();
+			}
 		}
 	}
 
 	for (const std::unique_ptr<EnemyBullet>& enemybullet : enemyBullets) {
 		for (const std::unique_ptr<PlayerBullet>& playerbullet : playerBullets) {
-			posA = playerbullet->GetWorldPosition();
-			posB = enemybullet->GetWorldPosition();
 
-			posResult = (posB.x - posA.x) * (posB.x - posA.x) +
-			            (posB.y - posA.y) * (posB.y - posA.y) +
-			            (posB.z - posA.z) * (posB.z - posA.z);
+			posB = playerbullet->GetWorldPosition();
+			posD = enemybullet->GetWorldPosition();
 
-			circleResult = (circleA + circleB) * (circleA + circleB);
+			posResult = (posD.x - posB.x) * (posD.x - posB.x) +
+			            (posD.y - posB.y) * (posD.y - posB.y) +
+			            (posD.z - posB.z) * (posD.z - posB.z);
+
+			circleResult = (circleB + circleD) * (circleB + circleD);
 
 			if (posResult <= circleResult) {
 				enemybullet->OnColision();
@@ -182,6 +192,38 @@ void GameScene::CheckAllColisions() {
 			}
 		}
 	}
+}
+
+void GameScene::LoadEnemyPopData() {
+
+	std::ifstream file;
+	file.open("enemyPop.csv");
+	assert(file.is_open());
+
+	enemyPopCommands << file.rdbuf();
+
+	file.close();
+}
+
+void GameScene::UpdateEnemyPopCommands() {
+
+	std::string line;
+
+	while (getline(enemyPopCommands, line)) {
+	
+		std::istringstream line_stream(line);
+
+		std::string word;
+
+		getline(line_stream, word, ',');
+
+		if (word.find("//") == 0) {
+
+			continue;
+		}
+
+	}
+
 }
 void GameScene::Draw() {
 
@@ -212,10 +254,12 @@ void GameScene::Draw() {
 
 	//自キャラの削除
 	player_->Draw(railCamera_->GetViewProjection());
+
 	for (std::unique_ptr<Enemy>& enemy : enemy_) {
 		enemy->Draw(railCamera_->GetViewProjection());
-	}
 
+	}
+	EnemyBulletDraw();
 	skydome_->Draw(railCamera_->GetViewProjection());
 
 	// 3Dオブジェクト描画後処理
@@ -238,4 +282,9 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::EnemyPop(Vector3 vector) {
+
+
 }
